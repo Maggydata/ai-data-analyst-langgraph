@@ -4,3 +4,8 @@ ruth_env/
 
 __pycache__/
 *.pyc
+
+Data/
+
+#test
+check_setup.py
