@@ -1,12 +1,9 @@
 from langgraph.graph import StateGraph, START, END
+
 from state import AnalysisState, initial_state
 from explorer import explorer_node
+from planner import planner_node
 
-
-def planner_node(state: AnalysisState) -> dict:
-    # Read what planner wrote in the state
-    print(f"[Planner] i read the data summary : {state['data_summary']}")
-    return{"plan" : [{"analysis" : "Sales by region ", "chart" : "bar"}]}
 
 def coder_node(state : AnalysisState) -> dict: 
     # Read plan of planner

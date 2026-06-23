@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from langchain_openai import ChatOpenAI
 
 #Load the contents of .env
 load_dotenv()
@@ -14,3 +15,7 @@ if not OPENAI_API_KEY:
     )
 
 CSV_PATH = os.path.join("Data", "Sample - Superstore.csv")
+
+#LLM factory
+def get_llm(temperature : float = 0):
+    return ChatOpenAI(model = MODEL, temperature = temperature)
