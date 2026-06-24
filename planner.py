@@ -80,4 +80,3 @@ if __name__ == "__main__" :
     summary = profile_dataframe(load_dataframe(CSV_PATH))
     result = planner_node({"data_summary" : summary})
     print("\nRough Plan :", json.dumps(result, ensure_ascii=False, indent=2))
-          
