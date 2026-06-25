@@ -3,18 +3,7 @@ from langgraph.graph import StateGraph, START, END
 from state import AnalysisState, initial_state
 from explorer import explorer_node
 from planner import planner_node
-
-
-def coder_node(state : AnalysisState) -> dict: 
-    # Read plan of planner
-    print(f"[Coder] i read the plan : {state['plan']}")
-    return{
-        "generate_code" : "# active code",
-        "figures" : ["<figure factice>"], 
-        "error" : None, 
-        "retry_count" : state["retry_count"] + 1,
-        "attempts_log" : [{"code" : "# active code", "error" : None}]
-        }
+from coder import coder_node 
     
 def writer_node (state : AnalysisState) -> dict:
     # Read charts product by the coder
