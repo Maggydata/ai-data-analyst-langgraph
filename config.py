@@ -7,7 +7,7 @@ load_dotenv()
 
 MODEL = "gpt-4.1-mini"
 
-#key recovery
+#Key recovery
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY: 
     raise RuntimeError(
@@ -19,3 +19,6 @@ CSV_PATH = os.path.join("Data", "Sample - Superstore.csv")
 #LLM factory
 def get_llm(temperature : float = 0):
     return ChatOpenAI(model = MODEL, temperature = temperature)
+
+#Maximum number of coder execution
+MAX_CODE_ATTEMPTS = 3

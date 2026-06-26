@@ -8,11 +8,13 @@ from state import AnalysisState, initial_state
 from config import get_llm
 from execute import run_generated_code
 
+FORCE_BUG_ON_FIRST_TRY = False
+
 class GeneratedCode(BaseModel) : 
     """Forces the LLM to return plain code, without Markdown or explanations."""
     code : str = Field(
-        description = "Le script Python complet et exécutable, "
-                      "SANS balises markdown ni texte d'explication." 
+        description = "The complete, executable Python script,"
+                      "no Markdown tags or explanatory text." 
     )
     
 
@@ -39,15 +41,30 @@ STRICTLY PROHIBITED:
 
 The script must run from start to finish without errors. """
 
-def _build_human_prompt(summary : dict, plan : list) -> str : 
+def _build_human_prompt(summary : dict, plan : list, attempts_log : list) -> str : 
     """Combine the variable data: the profile and the plan to be carried out."""
-    return(
+    prompt =(
         "DATASET PROFILE (available columns, types, statistics):\n"
         + json.dumps(summary, ensure_ascii = False, indent = 2)
         +"\n\nPLAN OF ANALYSES TO BE PERFORMED (one figure per task, in order):"
         + json.dumps(plan, ensure_ascii=False, indent=2)
-        + "\n\nGenerates the complete Python script that complies with the contract."
     )
+    #Check if an attempt failed
+    failed = [a for a in attempts_log if a.get("error")]
+    if failed :
+        last = failed[-1]
+        prompt += (
+            "\n\n YOUR PREVIOUS ATTEMPT FAILED."
+            "Analyze the error below and FIX your code.\n"
+            "--- Previous CODE ---\n" + last["code"] +
+            "\n--- ERROR OCCURRED ---\n" + last["error"] +
+            "\n\nRéécris le script COMPLET et corrigé."
+        )
+    else : 
+        prompt += "\n\nGenerates the complete Python script that complies with the contract."
+    return prompt        
+    
+    
     
 def coder_node(state : AnalysisState) -> dict : 
         """generates the code, runs it in a sandbox, and captures whether it succeeds or fails"""
@@ -120,4 +137,4 @@ if __name__ == "__main__":
     print(" Code generated writed in last_generated_code.py")        
             
     
-     
+    
