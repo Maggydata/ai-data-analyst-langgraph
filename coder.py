@@ -8,7 +8,7 @@ from state import AnalysisState, initial_state
 from config import get_llm
 from execute import run_generated_code
 
-FORCE_BUG_ON_FIRST_TRY = False
+FORCE_BUG_ON_FIRST_TRY = True
 
 class GeneratedCode(BaseModel) : 
     """Forces the LLM to return plain code, without Markdown or explanations."""
@@ -72,15 +72,25 @@ def coder_node(state : AnalysisState) -> dict :
         #Code generation
         llm = get_llm(temperature = 0)
         coder = llm.with_structured_output(GeneratedCode)
+        
+        system = SYSTEM_PROMPT
+        
+        #Force bug
+        if FORCE_BUG_ON_FIRST_TRY and state["retry_count"] == 0 :
+            system += ("\n\n[TEST MODE] In this script only, deliberately use "
+                       "a 'Revenue' column that doesn't exist instead of 'Sale'"
+                       "to cause an intentional error.")
+        
         generated : GeneratedCode = coder.invoke([
             SystemMessage(content=SYSTEM_PROMPT),
-            HumanMessage(content= _build_human_prompt(state["data_summary"], state["plan"] ))
+            HumanMessage(content= _build_human_prompt(state["data_summary"], state["plan"], state["attempts_log"] ))
         ])
         code = generated.code
         
         #Execution in the isolated sandbox
         print(f"[Coder] code generated ({len(code)} characters ) -> sandbox execution ...")
         result = run_generated_code(code, state["csv_path"], timeout = 30)
+        
         
         #Processing the Results
         if result.success :

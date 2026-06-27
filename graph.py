@@ -4,12 +4,27 @@ from state import AnalysisState, initial_state
 from explorer import explorer_node
 from planner import planner_node
 from coder import coder_node 
+from config import MAX_CODE_ATTEMPTS
     
 def writer_node (state : AnalysisState) -> dict:
     # Read charts product by the coder
     print(f"[Writer] i read the figures : {state['figures']}")
     return {"insights" : "Insights factices"}
 
+
+def route_after_coder(state : AnalysisState) -> str:
+    """A conditional branch that determines what happens after the Coder, depending on the state."""
+    
+    if state["error"] is None:
+        print(f"[Route] success in {state['retry_count']} attemp(s) ")
+        return "success"
+    
+    if state["retry_count"] >= MAX_CODE_ATTEMPTS :
+        print(f"[Route] failed after {state['retry_count']} attemp(s)"
+              f"(max atteint) -> we continue with writer")
+        return "give up"
+    print(f"[Route] failed (attemp {state['retry_count']}) -> we retry with coder")
+    return "retry"
 
 # Graph Construction
 
@@ -27,7 +42,11 @@ def build_graph() :
     builder.add_edge(START, "explorer")
     builder.add_edge("explorer", "planner")
     builder.add_edge("planner", "coder")
-    builder.add_edge("coder", "writer")
+    builder.add_conditional_edges("coder", route_after_coder, {
+        "success" : "writer",
+        "give up" : "writer",
+        "retry" : "coder", 
+    })
     builder.add_edge("writer", END)
     
     return builder.compile()
