@@ -3,13 +3,9 @@ from langgraph.graph import StateGraph, START, END
 from state import AnalysisState, initial_state
 from explorer import explorer_node
 from planner import planner_node
-from coder import coder_node 
+from coder import coder_node
+from writer import writer_node
 from config import MAX_CODE_ATTEMPTS
-    
-def writer_node (state : AnalysisState) -> dict:
-    # Read charts product by the coder
-    print(f"[Writer] i read the figures : {state['figures']}")
-    return {"insights" : "Insights factices"}
 
 
 def route_after_coder(state : AnalysisState) -> str:
@@ -58,5 +54,5 @@ if __name__ == "__main__":
     
     final_state = app.invoke(initial_state("Data/Sample - Superstore.csv"))
     print("\n--- Final State ---")
-    for key, value in final_state.items():
-       print(f"{key} : {value}")
+    #for key, value in final_state.items():
+       #print(f"{key} : {value}")

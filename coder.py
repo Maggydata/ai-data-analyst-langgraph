@@ -8,7 +8,7 @@ from state import AnalysisState, initial_state
 from config import get_llm
 from execute import run_generated_code
 
-FORCE_BUG_ON_FIRST_TRY = True
+FORCE_BUG_ON_FIRST_TRY = False
 
 class GeneratedCode(BaseModel) : 
     """Forces the LLM to return plain code, without Markdown or explanations."""
@@ -112,7 +112,9 @@ def coder_node(state : AnalysisState) -> dict :
         else:
             shutil.rmtree(result.workdir, ignore_errors=True)
             err = result.stderr.strip()
-            print(f"[Coder] failed : {err[:150]}")
+            usefull_err = [l for l in err.splitlines() if l.strip()][-3]
+            detail_usefull_err = usefull_err if usefull_err else "unknown error"
+            print(f"[Coder] failed : {detail_usefull_err}")
             return{
                " generated_code" : code,
                "figures" : [],
