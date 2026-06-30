@@ -28,8 +28,9 @@ STRICT REQUIREMENTS — your script MUST:
 - Use pandas (import pandas as pd) and Plotly (plotly.express as px
   and/or plotly.graph_objects as go).
 - For EACH analysis in the plan, in order, create a Plotly figure and
-  save it with fig.write_json(‘figN.json’), where N starts at 0 and increments
+  save it with fig.write_json(‘figN.json’, engine= 'json'), where N starts at 0 and increments
   (fig0.json for the first analysis, fig1.json for the second, etc.).
+  The "engine='json'" argument is REQUIRED: it outputs numbers in plain text and avoids binary encoding (bdata/dtype).
 - Give each figure a clear TITLE.
 - Parse the date columns using `pd.to_datetime` BEFORE creating any time-series plots.
 - Use ONLY columns present in the provided profile.

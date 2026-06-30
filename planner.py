@@ -39,7 +39,8 @@ SYSTEM_PROMPT = """You are an expert data analysis planner.
         * distribution of a numeric value -> histogram or box plot
         * breakdown of a whole into parts -> pie
     - Prioritize analyses with business value (sales, profit, trends, segments).
-    - Vary your perspectives: don’t present the same thing five times."""
+    - Vary your perspectives: don’t present the same thing five times.
+    - Write ALL text fields (title, question, rationale) in FRENCH, even though the column names stay in the original language."""
     
 def planner_node(state : AnalysisState) -> dict :
         """reads the Explorer's summary and drafts a sound plan"""

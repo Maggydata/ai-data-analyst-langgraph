@@ -1,4 +1,7 @@
 import json
+import plotly.io as pio
+import base64
+import numpy as np
 
 from langchain_core.messages import SystemMessage, HumanMessage
 
@@ -13,25 +16,36 @@ def _fmt(v):
     except(TypeError, ValueError):
         return str(v)
     
+    
+def _decode(v):
+    """Decode a binary-encoded Plotly array into a list"""
+    if isinstance(v, dict) and "bdata" in v:
+        raw = base64.b64decode(v["bdata"])
+        return np.frombuffer(raw, dtype=np.dtype(v["dtype"])).tolist()
+    if v is None:
+        return []
+    return list(v)    
+    
 
 
 def describe_figure(fig_json : str, max_points : int = 40) -> str :
     """Converts a Plotly figure (JSON) into a concise, numbered textual summary."""
     try :
-        fig = json.loads(fig_json)
+        fig = pio.from_json(fig_json)
     except Exception:
         return "Unreadable figure"
     
-    layout = fig.get("layout", {}) or {}
-    t = layout.get('title', {})
-    title = (t.get("text") if isinstance(t, dict) else t) or "(sans titre)"
+    
+    title = fig.layout.title.text if (fig.layout.title and fig.layout.title.text) else "No title"
     out = [f'Figure : "{title}"']
     
-    for tr in fig.get("data", []) : 
-        ttype = tr.get("type", "?")
-        name = tr.get("name") or ""
-        x, y = tr.get("x") or [], tr.get("y") or []
-        labels, values = tr.get("labels"), tr.get("values")
+    for tr in fig.data : 
+        ttype = tr.type or "?"
+        name = tr.name or ""
+        x = _decode(getattr(tr, "x", None) )
+        y = _decode(getattr(tr, "y", None)) 
+        labels = _decode(getattr(tr, "labels", None) )
+        values = _decode(getattr(tr, "values", None))
         
         if labels and values:                                                       #Camembert
             pairs = ";".join(f"{l} : {_fmt(v)}" for l,v in zip(labels, values))
@@ -78,6 +92,10 @@ def writer_node(state : AnalysisState) -> dict :
     #If there are figures, we analyze each one and then write up the results
     digests = [describe_figure(f) for f in state["figures"]]
     digest_text = "\n\n".join(digests)
+    
+    print("=== DIGEST ENVOYÉ AU WRITER ===")
+    print(digest_text)
+    print("=== FIN DIGEST ===")
     
     llm = get_llm(temperature= 0.5)
     resp = llm.invoke([
