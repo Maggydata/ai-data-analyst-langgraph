@@ -136,3 +136,4 @@ The app opens at `http://localhost:8501`. Upload a CSV and click **"Run analysis
 
 ## Demo
 
+![Quick preview](docs/demo.gif)
