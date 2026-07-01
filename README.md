@@ -27,13 +27,13 @@ Four agents collaborate through a **shared state** (a common "whiteboard"). Agen
 
 ```mermaid
 graph TD
-    START([Start]) --> EXP[ Explorer<br/>deterministic pandas profiling]
+    START([CSV uploadé]) --> EXP[ Explorer<br/>deterministic pandas profiling]
     EXP --> PLAN[ Planner<br/>LLM + structured Pydantic output]
     PLAN --> CODE[ Coder<br/>generates + executes code in a sandbox]
     CODE -->|success| WRITE[ Writer<br/>natural-language insights]
     CODE -->|error, retries left| CODE
     CODE -->|give up after 3 attempts| WRITE
-    WRITE --> END([End])
+    WRITE --> END([Graphiques + insights])
 ```
 
 | Agent | Role | Tool | Why this choice |
@@ -99,7 +99,7 @@ data-analyst-agents/
 ├── explorer.py       # Explorer agent (pandas profiling)
 ├── planner.py        # Planner agent (LLM + Pydantic schema)
 ├── coder.py          # Coder agent (generation + execution + self-correction)
-├── safe_execute.py   # Isolated execution sandbox (subprocess + timeout)
+├── execute.py   # Isolated execution sandbox (subprocess + timeout)
 ├── writer.py         # Writer agent (interpretation + writing)
 ├── requirements.txt
 └── .env              # API key (not committed)
@@ -113,8 +113,7 @@ data-analyst-agents/
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/<your-user>/data-analyst-agents.git
-cd data-analyst-agents
+git clone https://github.com/Maggydata/ai-data-analyst-langgraph.git
 
 # 2. Create the virtual environment and install dependencies
 python3.12 -m venv venv
